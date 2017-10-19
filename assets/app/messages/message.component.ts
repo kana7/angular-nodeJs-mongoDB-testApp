@@ -31,8 +31,7 @@ export class MessageComponent {
   constructor(private messageService: MessageService) {}
 
   onEdit() {
-    alert("ToDo: EDIT MESSAGE");
-    // this.editClicked.emit(this.message.content);
+    this.messageService.editMessage(this.message);
   }
 
   onDelete() {
