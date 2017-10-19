@@ -20,7 +20,11 @@ export class MessageInputComponent {
         console.log(newMessageContent);
 
         const newMessage: Message = new Message(newMessageContent, 'Paul');
-        this.messageService.saveMessage(newMessage);
+        this.messageService.saveMessage(newMessage)
+        .subscribe(
+            data => console.log(data), 
+            error => console.log(error)
+        );
         newMessageForm.resetForm();
 
     }
