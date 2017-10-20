@@ -16,13 +16,17 @@ export class MessageService {
 
     public saveMessage(message: Message) {
 
-        this.messages.push(message);
         const body = JSON.stringify(message);
         const headers = new Headers({'Content-Type': 'application/json'});
 
         return this.http
           .post("http://localhost:3000/message", body, {headers: headers})
-          .map((response: Response) => response.json())
+          .map((response: Response) => {
+            const result = response.json();
+            const message = new Message(result.obj.content, 'Dummy', result.obj._id, null);
+            this.messages.push(message);
+            return message;
+          })
           .catch((error: Response) => Observable.throw(error.json()));
     }
     
@@ -35,7 +39,7 @@ export class MessageService {
 
             // push each message in a newly created array
             for (let message of messages) {
-              transformedMessages.push(new Message(message.content, "Dummy", message.id, null));
+              transformedMessages.push(new Message(message.content, "Dummy", message._id, null));
             }
             this.messages = transformedMessages;
             // return from the map function
@@ -49,10 +53,20 @@ export class MessageService {
     }
 
     public updateMessage(message: Message){
-      // return this.http.put("http://localhost:3000/message", );
+      const body = JSON.stringify(message);
+      const headers = new Headers({'Content-Type': 'application/json'});
+
+      return this.http
+        .patch("http://localhost:3000/message/" + message.messageId, body, {headers: headers})
+        .map((response: Response) => response.json())
+        .catch((error: Response) => Observable.throw(error.json()));
     }
 
     public deleteMessage(message: Message){
-        this.messages.splice(this.messages.indexOf(message), 1);
+        this.messages.splice(this.messages.indexOf(message), 1);  
+        return this.http
+          .delete("http://localhost:3000/message/" + message.messageId)
+          .map((response: Response) => response.json())
+          .catch((error: Response) => Observable.throw(error.json()));
     }
 }

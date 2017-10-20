@@ -19,7 +19,10 @@ export class MessageInputComponent implements OnInit {
     if (this.message) {
         // EDIT
         this.message.content = messageForm.value.content;
-        // this.messageService.updateMessage(this.message).subscribe();
+        this.messageService.updateMessage(this.message).subscribe(
+          (result) => {console.log(result)},
+          (error) => {console.log(error)}          
+        );
         this.message = null;
     } else {
         //CREATE
@@ -30,7 +33,10 @@ export class MessageInputComponent implements OnInit {
 
         this.messageService
           .saveMessage(newMessage)
-          .subscribe(data => console.log(data), error => console.log(error));
+          .subscribe(
+            (data) => {console.log(data)}, 
+            (error) => {console.log(error)}
+          );
 
         messageForm.resetForm();
     }

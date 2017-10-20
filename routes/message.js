@@ -37,4 +37,69 @@ router.post("/", function(req, res, next) {
   });
 });
 
+router.patch('/:id', function (req, res, next) {
+
+  Message.findById(req.params.id, function(err, message){
+    if (err){
+      return res.status(500).json({
+        title: "an error accured",
+        error: err
+      });
+    }
+    if(!message){
+      return res.status(500).json({
+        title: 'No Message Found!',
+        error: {message: 'Message not found'}
+      });
+    }
+    
+    message.content = req.body.content;
+
+    message.save(function(err, result) {
+      if (err) {
+        return res.status(500).json({
+          title: "an error accured",
+          error: err
+        });
+      }
+      res.status(201).json({
+        message: "Saved message",
+        obj: result
+      });
+    });
+  });
+});
+
+router.delete('/:id', function(req, res, next) {
+  Message.findById(req.params.id, function(err, message){
+    if (err){
+      return res.status(500).json({
+        title: "an error accured",
+        error: err
+      });
+    }
+    if(!message){
+      return res.status(500).json({
+        title: 'No Message Found!',
+        error: {message: 'Message not found'}
+      });
+    }
+    
+    message.content = req.body.content;
+
+    message.remove(function(err, result) {
+      if (err) {
+        return res.status(500).json({
+          title: "an error accured",
+          error: err
+        });
+      }
+      res.status(201).json({
+        message: "message deleted",
+        obj: result
+      });
+    });
+  })
+});
+
 module.exports = router;
