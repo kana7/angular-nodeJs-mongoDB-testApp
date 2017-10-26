@@ -15,6 +15,7 @@ import { SignupComponent } from "./auth/signup.component";
 import { SigninComponent } from "./auth/signin.component";
 
 import { MessageService } from "./message.service";
+import { AuthService } from "./auth/auth.service";
 
 import { routing } from "./app.routing";
 
@@ -32,7 +33,10 @@ import { routing } from "./app.routing";
         SigninComponent
     ],
     imports: [BrowserModule, FormsModule, routing, ReactiveFormsModule, HttpModule],
-    providers: [MessageService],
+    providers: [
+        MessageService, 
+        AuthService
+    ],
     bootstrap: [AppComponent]
 })
 export class AppModule {
