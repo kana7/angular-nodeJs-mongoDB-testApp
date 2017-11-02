@@ -1,7 +1,9 @@
 var express = require("express");
 var router = express.Router();
+var jwt = require('jsonwebtoken');
 
 var Message = require("../models/message");
+var User = require("../models/user");
 
 router.get("/", function(req, res, next) {
   Message.find().exec(function(err, messages) {
@@ -18,22 +20,55 @@ router.get("/", function(req, res, next) {
   });
 });
 
-router.post("/", function(req, res, next) {
-  var message = new Message({
-    content: req.body.content
-  });
-
-  message.save(function(err, result) {
-    if (err) {
-      return res.status(500).json({
-        title: "an error accured",
+// allow only authenticate user with the token to use the next routes
+router.use('/', function(req, res, next) {
+  jwt.verify(req.query.token, 'secret', function(err, decoded){
+    if(err){
+      return res.status(401).json({
+        title: 'Not Authenticated',
         error: err
       });
     }
-    res.status(201).json({
-      message: "Saved message",
-      obj: result
+    next();
+  });
+});
+
+router.post("/", function(req, res, next) {
+
+  const decoded = jwt.decode(req.query.token);
+  // fetch authenticate user with jwt token from DB
+  User.findById(decoded.user._id, function(err, user) {
+    // basic error when fetching data from DB
+    if (err) {
+      return res.status(500).json({
+        title: 'An error occcured',
+        error: err
+      });
+    }
+
+    var message = new Message({
+      content: req.body.content,
+      user: user._id
     });
+    
+    message.save(function(err, result) {
+      if (err) {
+        return res.status(500).json({
+          title: "an error accured",
+          error: err
+        });
+      }
+      //add message to the user's messages array.
+      user.messages.push(result);
+      // save modifications (new message added) to the user in DB
+      user.save();
+
+      res.status(201).json({
+        message: "Saved message",
+        obj: result
+      });
+    });
+
   });
 });
 
