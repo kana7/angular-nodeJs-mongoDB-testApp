@@ -29,7 +29,7 @@ export class MessageInputComponent implements OnInit {
         const newMessageContent: string = messageForm.value.content;
         console.log(newMessageContent);
     
-        const newMessage: Message = new Message(newMessageContent, "Paul");
+        const newMessage: Message = new Message(newMessageContent, "Dummy");
 
         this.messageService
           .saveMessage(newMessage)

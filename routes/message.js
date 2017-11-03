@@ -5,6 +5,7 @@ var jwt = require('jsonwebtoken');
 var Message = require("../models/message");
 var User = require("../models/user");
 
+// GET ALL MESSAGES WITH AUTHOR
 router.get("/", function(req, res, next) {
   Message.find()
   .populate('user', 'firstName')
@@ -35,6 +36,7 @@ router.use('/', function(req, res, next) {
   });
 });
 
+// CREATE A NEW MESSAGE
 router.post("/", function(req, res, next) {
 
   const decoded = jwt.decode(req.query.token);
@@ -50,7 +52,7 @@ router.post("/", function(req, res, next) {
 
     var message = new Message({
       content: req.body.content,
-      user: user._id
+      user: user
     });
     
     message.save(function(err, result) {
@@ -74,6 +76,7 @@ router.post("/", function(req, res, next) {
   });
 });
 
+// EDIT A MESSAGE
 router.patch('/:id', function (req, res, next) {
 
   const decoded = jwt.decode(req.query.token);
@@ -90,7 +93,7 @@ router.patch('/:id', function (req, res, next) {
         error: {message: 'Message not found'}
       });
     }
-    
+    // Is the current user the messsage author ?
     if(message.user != decoded.user._id) {
       return res.status(403).json({
         title: 'Not Authorized',
@@ -115,6 +118,7 @@ router.patch('/:id', function (req, res, next) {
   });
 });
 
+// DELETE A MESSAGE
 router.delete('/:id', function(req, res, next) {
 
   const decoded = jwt.decode(req.query.token);
