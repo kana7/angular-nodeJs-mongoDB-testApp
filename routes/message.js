@@ -6,7 +6,9 @@ var Message = require("../models/message");
 var User = require("../models/user");
 
 router.get("/", function(req, res, next) {
-  Message.find().exec(function(err, messages) {
+  Message.find()
+  .populate('user', 'firstName')
+  .exec(function(err, messages) {
     if (err) {
       return res.status(500).json({
         title: "an error accured",
@@ -74,6 +76,7 @@ router.post("/", function(req, res, next) {
 
 router.patch('/:id', function (req, res, next) {
 
+  const decoded = jwt.decode(req.query.token);
   Message.findById(req.params.id, function(err, message){
     if (err){
       return res.status(500).json({
@@ -88,6 +91,13 @@ router.patch('/:id', function (req, res, next) {
       });
     }
     
+    if(message.user != decoded.user._id) {
+      return res.status(403).json({
+        title: 'Not Authorized',
+        error: {message: 'User do not match'}
+      });
+    }
+
     message.content = req.body.content;
 
     message.save(function(err, result) {
@@ -106,6 +116,8 @@ router.patch('/:id', function (req, res, next) {
 });
 
 router.delete('/:id', function(req, res, next) {
+
+  const decoded = jwt.decode(req.query.token);
   Message.findById(req.params.id, function(err, message){
     if (err){
       return res.status(500).json({
@@ -120,6 +132,12 @@ router.delete('/:id', function(req, res, next) {
       });
     }
     
+    if(message.user != decoded.user._id) {
+      return res.status(403).json({
+        title: 'Not Authorized',
+        error: {message: 'User do not match'}
+      });
+    }
     message.content = req.body.content;
 
     message.remove(function(err, result) {
